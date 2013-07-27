@@ -1,6 +1,9 @@
 <?php
 namespace lib\core;
 
+use lib\core\exception\NoViewEngineException;
+use lib\view\ViewAdapter;
+
 /**
  * 视图类
  * @author starlight36
@@ -41,7 +44,7 @@ class View {
 	/**
 	 * 取得一个类型的视图引擎
 	 * @param string $engineType 配置里的引擎类型
-	 * @return view\ViewAdapter
+	 * @return ViewAdapter
 	 */
 	public function getEngine($engineType) {
 		$engineType = strtolower($engineType);
@@ -54,7 +57,7 @@ class View {
 			$view_class = $config[$engineType]['class'];
 			return $this->engine[$engineType] = new $view_class($this, $config[$engineType]['config']);
 		} else {
-			trigger_error('[ERROR] unknown view engine type.', E_USER_ERROR);
+			throw new NoViewEngineException('Unknown view engine type: '.$engineType);
 		}
 	}
 	

@@ -13,17 +13,17 @@ We never write functions outside a class. A root application object manage the
 whole lifecycle of the runtime objects. It seems that it is a Java EE framework.
 Actually, I "copied" some features to this php framework and it works well :-).
 
-Case tools can effectively help you to DESIGN a system rather than WRITE a system.
-But unfortunately less case tools support php5.3+'s forward or reverse engineering.
-If you build a open source UML tools(of course with php5.3+ support), I will be 
-very grateful.
+Case tools can effectively help you to DESIGN a system rather than WRITE a 
+system. But unfortunately less case tools support php5.3+'s forward or reverse 
+engineering.If you build a open source UML tools(of course with php5.3+ 
+support), I will be very grateful.
 
 When I was writing my thesis, I promised to open the framework's source code to
 public. Now I fulfilled my promise, the framework has been released with LGPLv3
 licence, you can read the licence in current directory.
 
 This framework is still in alpha test stage so far, please don't count on it 
-working well without a bug. If you want to contribute to this project, please notify
-me by this email address <me@starlight36.com>.
+working well without a bug. If you want to contribute to this project, please 
+notify me by this email address <me@starlight36.com>.
 
 EOF;

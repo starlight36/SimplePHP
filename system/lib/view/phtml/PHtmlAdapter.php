@@ -47,8 +47,6 @@ class PHtmlAdapter extends ViewAdapter {
 		$this->phtml->bind('LOG', $this->applicationContext->getLog());
 		
 		// 系统内置变量
-		$this->phtml->assign('appConfig'
-				, $this->applicationContext->getConfig()->get('appConfig'));
 		$this->phtml->assign('contextPath'
 				, $this->applicationContext->getRequest()->getContextPath());
 	}

@@ -1,0 +1,21 @@
+# BEGIN URL rewrite
+RewriteEngine on
+#
+# Unless you have set a different RewriteBase preceding this
+# point, you may delete or comment-out the following
+# RewriteBase directive:
+RewriteBase /
+#
+# if this request is for "/" or has already been rewritten to WP
+RewriteCond $1 ^(index\.php)?$ [OR]
+# or if request is for image, css, or js file
+RewriteCond $1 \.(gif|jpg|css|js|ico)$ [NC,OR]
+# or if URL resolves to existing file
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+# or if URL resolves to existing directory
+RewriteCond %{REQUEST_FILENAME} -d
+# then skip the rewrite to WP
+RewriteRule ^(.*)$ - [S=1]
+# else rewrite the request to WP
+RewriteRule . index.php [L]
+# END

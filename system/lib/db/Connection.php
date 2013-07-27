@@ -99,13 +99,13 @@ class Connection {
 	private function createPDO($uri) {
 		$this->parseURI($uri);
 		if(FALSE === array_search($this->scheme, PDO::getAvailableDrivers())){
-			trigger_error('Database '.$this->scheme.' not supported by PDO, driver not found.', E_USER_ERROR);
+			throw new DbException('Database '.$this->scheme.' not supported by PDO, driver not found.');
 		}
 		$dsn = "{$this->scheme}:host={$this->host};dbname={$this->databse}";
 		try {
 			$this->pdo = new PDO($dsn, $this->user, $this->pass);
 		} catch(PDOException $e) {
-			trigger_error('Database connect error, '.$e->getMessage(), E_USER_ERROR);
+			throw new DbException('Database connect error, '.$e->getMessage());
 		}
 	}
 
@@ -139,8 +139,8 @@ class Connection {
 		$statement = $this->pdo->prepare($sql);
 		if(!$statement) {
 			$pdo_error = $this->pdo->errorInfo();
-			trigger_error("SQL parse error: {$pdo_error[2]}, SQLSTATE {$pdo_error[0]}"
-								.", Driver error {$pdo_error[1]}", E_USER_ERROR);
+			throw new DbException("SQL parse error: {$pdo_error[2]}, SQLSTATE {$pdo_error[0]}"
+								.", Driver error {$pdo_error[1]}");
 		}
 		if($args != NULL) {
 			foreach($args as $key => $value) {
@@ -198,8 +198,8 @@ class Connection {
 		$statement = $this->buildStatement($sql, $args);
 		if(!$statement->execute()) {
 			$stmt_error = $statement->errorInfo();
-			trigger_error("DB query failed: {$stmt_error[2]}, SQLSTATE {$stmt_error[0]}"
-								.", Driver error {$stmt_error[1]}. SQL statement: {$sql}", E_USER_ERROR);
+			throw new DbException("DB query failed: {$stmt_error[2]}, SQLSTATE {$stmt_error[0]}"
+								.", Driver error {$stmt_error[1]}. SQL statement: {$sql}");
 		}
 		return new ResultSet($statement);
 	}
@@ -219,8 +219,8 @@ class Connection {
 		$statement = $this->buildStatement($sql, $args);
 		if(!$statement->execute()) {
 			$stmt_error = $statement->errorInfo();
-			trigger_error("DB query failed: {$stmt_error[2]}, SQLSTATE {$stmt_error[0]}"
-								.", Driver error {$stmt_error[1]}. SQL statement: {$sql}", E_USER_ERROR);
+			throw new DbException("DB query failed: {$stmt_error[2]}, SQLSTATE {$stmt_error[0]}"
+								.", Driver error {$stmt_error[1]}. SQL statement: {$sql}");
 		}
 		return $statement->rowCount();
 	}

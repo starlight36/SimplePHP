@@ -3,9 +3,9 @@
  * 系统目录
  * @var string 
  */
-define('SYS_INDEX_PATH', str_replace('\\', '/', dirname(__FILE__).'/'));
-define('SYS_PATH', SYS_INDEX_PATH.'system/');
+define('WEB_ROOT', str_replace('\\', '/', dirname(__FILE__).'/'));
+define('SYS_PATH', WEB_ROOT.'system/');
 
-require SYS_PATH.'bootstrap.php';
+require SYS_PATH.'init.php';
 
 /* EOF */

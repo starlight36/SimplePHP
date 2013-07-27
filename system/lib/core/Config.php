@@ -10,30 +10,15 @@ namespace lib\core;
 class Config {
 
 	/**
-	 * 本类对象
-	 * @var Config
-	 */
-	private static $instance = NULL;
-
-	/**
 	 * 配置信息数组
 	 */
 	private $config = array();
-
+	
 	/**
-	 * 私有构造方法 
+	 * 构造方法
 	 */
-	private function __construct() {}
-
-	/**
-	 * 取得本类实例
-	 * @var Config
-	 */
-	public static function getInstance() {
-		if(self::$instance instanceof self) {
-			return self::$instance;
-		}
-		return self::$instance = new self();
+	public function __construct() {
+		$this->config = include 'config/main.php';
 	}
 
 	/**

@@ -56,7 +56,7 @@ class DBFactory {
 		}
 		$config = $this->config['pool'][($id === NULL) ? $this->config['default'] : $id];
 		if(empty($config)) {
-			trigger_error('Selected DB connection does not exist.', E_USER_ERROR);
+			throw new DbException('Selected DB connection does not exist.');
 		}
 		if(array_key_exists('uri', $config) && !empty($config['uri'])) {
 			$config = $config['uri'];

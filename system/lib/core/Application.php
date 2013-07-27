@@ -73,7 +73,7 @@ class Application {
 	 * 私有构造方法
 	 */
 	private function __construct() {
-		$this->config = Config::getInstance();
+		$this->config = new Config();
 		$this->log = new Log($this);
 		$this->request = new Request($this);
 		$this->response = new Response($this);

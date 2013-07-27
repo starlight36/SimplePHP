@@ -3,7 +3,6 @@
 namespace lib\view\phtml;
 
 use lib\core\Application;
-use lib\view\ViewAdapter;
 
 /**
  * PHtml视图引擎
@@ -68,7 +67,7 @@ class PHtml {
 	 * @param string $path 
 	 */
 	public function setTemplatePath($path) {
-		$this->templatePath = $path;
+		$this->templatePath[] = $path;
 	}
 	
 	/**
@@ -100,11 +99,13 @@ class PHtml {
 	 * @param string $tpl 
 	 */
 	public function getTemplate($tpl) {
-		$tpl = rtrim($this->templatePath, '/').'/'.ltrim($tpl);
-		if(!is_file($tpl)) {
-			trigger_error('[ERROR] Template '.$tpl.' dosen\'t exist.', E_USER_ERROR);
+		foreach ($this->templatePath as $path) {
+			$tpl = rtrim($path, '/').'/'.ltrim($tpl);
+			if(is_file($tpl)) {
+				return $tpl;
+			}
 		}
-		return $tpl;
+		throw new NoPHtmlException('Template '.$tpl.'does not exist.');
 	}
 	
 	/**

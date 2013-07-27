@@ -101,13 +101,13 @@ class Request {
 	private function initContextPath() {
 		//取得部署上下文路径
 		$document_root = rtrim(str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']), '/');
-		$index_root = rtrim(SYS_INDEX_PATH, '/');
+		$index_root = rtrim(WEB_ROOT, '/');
 		if($document_root == $index_root) {
 			$this->contextPath = '/';
 		} else {
 			$document_root_len = strlen($document_root);
 			if(substr($index_root, 0, $document_root_len) == $document_root) {
-				$this->contextPath = substr($index_root, $document_root_len - 1).'/';
+				$this->contextPath = substr($index_root, $document_root_len).'/';
 			}
 		}
 	}
@@ -146,7 +146,7 @@ class Request {
 					$this->requestFile[$fieldName][] = array(
 						'name' => $one_name,
 						'type' => $_FILES[$fieldName]['type'][$i],
-						'size' => $_FILES[$fieldName]['szie'][$i],
+						'size' => $_FILES[$fieldName]['size'][$i],
 						'tmp_name' => $_FILES[$fieldName]['tmp_name'][$i],
 						'error' => $_FILES[$fieldName]['error'][$i]
 					);
@@ -155,7 +155,7 @@ class Request {
 				$this->requestFile[$fieldName] = array(
 					'name' => $info['name'],
 					'type' => $_FILES[$fieldName]['type'],
-					'size' => $_FILES[$fieldName]['szie'],
+					'size' => $_FILES[$fieldName]['size'],
 					'tmp_name' => $_FILES[$fieldName]['tmp_name'],
 					'error' => $_FILES[$fieldName]['error']
 				);
@@ -170,16 +170,27 @@ class Request {
 		$route_config = $this->config->get('route.mode');
 		
 		// 取得PATH参数
-		$path_string = '';
 		if($route_config == 'query') {
-			$path_string = $this->requestQuery['p'];
+			if(array_key_exists('p', $this->requestQuery)) {
+				$path_string = $this->requestQuery['p'];
+			} else {
+				$path_string = '';
+			}
 		} else if($route_config == 'phpinfo') {
 			$path_string = $_SERVER['PATH_INFO'];
 		} else {
-			$path_string = $_SERVER['REQUEST_URI'];
+			$path_string = $this->requestURI;
 			$query_pos = strpos($path_string, '?');
 			if(FALSE !== $query_pos) {
-				$path_string = substr($path_string, 0, $query_pos + 1);
+				$path_string = substr($path_string, 0, $query_pos);
+			}
+			// 如果不在网站根目录下，则需要减去ContextPath部分
+			if(trim($this->contextPath, '/') != '') {
+				$contextPath = rtrim($this->contextPath, '/');
+				$contextLength = strlen($contextPath);
+				if(substr($path_string, 0, $contextLength) == $contextPath) {
+					$path_string = substr($path_string, $contextLength);
+				}
 			}
 		}
 		

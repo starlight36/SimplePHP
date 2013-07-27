@@ -2,6 +2,8 @@
 
 namespace lib\core;
 
+use Exception;
+
 /**
  * 日志类
  * @author starlight36
@@ -9,18 +11,52 @@ namespace lib\core;
  * @updated 05-四月-2012 15:45:24
  */
 class Log {
+	
+	/*
+	 * 日志级别 - 调试
+	 */
+	const DEBUG = 0;
+	
+	/**
+	 * 日志级别 - 信息
+	 */
+	const INFO = 1;
+	
+	/**
+	 * 日志信息 - 警告
+	 */
+	const WARN = 2;
+	
+	/**
+	 * 日志信息 - 错误
+	 */
+	const ERROR = 3;
 
 	/**
 	 * 应用程序上下文对象
 	 * @var Application
 	 */
 	private $applicationContext = NULL;
+
+	/**
+	 * 日志缓冲区
+	 * @var array
+	 */
+	private $logBuffer = array();
+	
+	/**
+	 * 是否开启开发模式
+	 * 启用开发模式，将会在错误信息页面打印完全的错误
+	 * 堆栈信息，请在main.php配置文件中设置。
+	 * @var boolean
+	 */
+	private $enableDevelopMode = FALSE;
 	
 	/**
 	 * 日志记录级别
 	 * @var int 
 	 */
-	private $logLevel = 0;
+	private $logLevel = 'DEBUG';
 	
 	/**
 	 * 日志路径
@@ -34,31 +70,31 @@ class Log {
 	 */
 	private $logFormat = NULL;
 	
-	/*
-	 * 日志级别 - 调试
-	 */
-	const DEBUG = 0;
-	
-	/**
-	 * 日志级别 - 信息 
-	 */
-	const INFO = 1;
-	
-	/**
-	 * 日志级别 - 警告 
-	 */
-	const WARN = 2;
-	
-	/**
-	 * 日志级别 - 错误 
-	 */
-	const ERROR = 3;
-	
 	/**
 	 * 日志级别名称
 	 * @var array 
 	 */
-	private $levelTags = array('DEBUG', 'INFO', 'WARN', 'ERROR');
+	private static $levelTags = array('DEBUG', 'INFO', 'WARN', 'ERROR');
+
+	/**
+	 * PHP错误映射到日志级别
+	 * @var array
+	 */
+	private static $phpErrorMap = array(
+		E_PARSE => 'ERROR', 
+		E_ERROR => 'ERROR', 
+		E_USER_ERROR => 'ERROR', 
+		E_CORE_ERROR => 'ERROR',
+		E_COMPILE_ERROR => 'ERROR',
+
+		E_STRICT => 'WARN',
+		E_WARNING => 'WARN',
+		E_DEPRECATED => 'WARN', 
+		E_USER_WARNING => 'WARN', 
+		E_COMPILE_WARNING => 'WARN',
+
+		E_NOTICE => 'INFO',
+		E_USER_NOTICE => 'INFO');
 
 	/**
 	 * 构造方法 
@@ -66,36 +102,90 @@ class Log {
 	public function __construct($appContext) {
 		$this->applicationContext = $appContext;
 		$config = $appContext->getConfig();
-		$this->logLevel = $config->get('log.log_level');
-		$this->logPath = $config->get('log.log_path');
-		$this->logFormat = $config->get('log.log_format');
-		
-		// 托管PHP错误消息到本类处理
-		set_error_handler(function($errno, $errstr, $errfile, $errline){
-			$log_msg = "$errno $errstr in file $errfile, line $errline";
-			Application::getInstance()->getLog()->error($log_msg);
-			header('HTTP/1.1 500 Internal Server Error');
-			if(defined('DEBUG') && DEBUG) {
-				include 'lib/misc/debug.phtml';
+		$this->enableDevelopMode = ($config->get('log.dev_mode')) ? TRUE : FALSE;
+		$this->logLevel = $config->get('log.level');
+		$this->logPath = $config->get('log.path');
+		$this->logFormat = $config->get('log.format');
+		// 托管PHP错误消息到本类处理器
+		set_error_handler(array($this, 'phpErrorHander'), E_ALL ^ E_NOTICE);
+		// 托管未处理的异常到本类处理器
+		set_exception_handler(array($this, 'unhandledExceptionHandler'));
+	}
+	
+	/**
+	 * 析构方法
+	 * 当日志对象销毁时，记录日志缓冲区内容到日志文件。
+	 */
+	public function __destruct() {
+		if(!empty($this->logBuffer)) {
+			error_log(implode("\n", $this->logBuffer)."\n", 3,
+				strftime($this->logPath));
+		}
+	}
+	
+	/**
+	 * PHP错误处理器
+	 * @param int $errno
+	 * @param string $errstr
+	 * @param string $errfile
+	 * @param int $errline
+	 */
+	public function phpErrorHander($errno, $errstr, $errfile, $errline) {
+		$errorLevel = self::$phpErrorMap[$errno];
+		$logMessage = "$errorLevel, $errno. $errstr in file $errfile,"
+					 ." line $errline";
+		$this->record($errorLevel, $logMessage);
+		if($this->enableDevelopMode) {
+			include 'lib/misc/debug.phtml';
+			if(array_search($errorLevel, self::$levelTags) > self::INFO) {
+				die();
 			}
+		} else {
+			include 'lib/misc/error.phtml';
 			die();
-		}, E_ALL ^ E_NOTICE);
+		}
+		return TRUE;
+	}
+	
+	/**
+	 * 未处理异常处理器
+	 * @param Exception $exc
+	 */
+	public function unhandledExceptionHandler($exc) {
+		$logMessage = "Unhandled Exception ".get_class($exc)
+			.": {$exc->getMessage()} in file {$exc->getFile()}, "
+			."line {$exc->getLine()}\nTrace stack:\n".$exc->getTraceAsString();
+		$this->record(self::ERROR, $logMessage);
+		if($this->enableDevelopMode) {
+			include 'lib/misc/debug.phtml';
+		} else {
+			include 'lib/misc/error.phtml';
+		}
+		die();
 	}
 
 	/**
 	 * 记录日志的方法
 	 * 
-	 * @param level    日志级别
-	 * @param string $output 输出内容
+	 * @param mixed $level 日志级别,
+	 * 允许传入整数等级，或者对应等级的字符串
+	 * @param string $output 输出内容,
+	 * 要打印到日志的内荣
 	 */
-	private function record($level, $output) {
+	public function record($level, $output) {
+		if(is_string($level)) {
+			$level = array_search($level, self::$levelTags);
+			if($level === FALSE) {
+				$level = self::WARN;
+			}
+		}
 		if($level < $this->logLevel) {
 			return;
 		}
-		$log_msg = str_replace('%level%', $this->levelTags[$level], $this->logFormat);
+		$log_msg = str_replace('%level%', self::$levelTags[$level], $this->logFormat);
 		$log_msg = str_replace('%time%', date('Y-m-d H:i:s'), $log_msg);
 		$log_msg = str_replace('%output%', $output, $log_msg);
-		error_log($log_msg."\n", 3, $this->logPath);
+		$this->logBuffer[] = $log_msg;
 	}
 
 	/**

@@ -7,6 +7,6 @@ return array(
 	// query - 使用查询字符串参数p指定
 	// pathinfo - 使用pathinfo的内容
 	// rewrite - 使用URL重写方式
-	'mode' => 'query',
+	'mode' => 'rewrite',
 	'default_action' => 'Home',
 );
