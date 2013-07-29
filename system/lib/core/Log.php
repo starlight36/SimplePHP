@@ -107,7 +107,7 @@ class Log {
 		$this->logPath = $config->get('log.path');
 		$this->logFormat = $config->get('log.format');
 		// 托管PHP错误消息到本类处理器
-		set_error_handler(array($this, 'phpErrorHander'), E_ALL ^ E_NOTICE);
+		set_error_handler(array($this, 'phpErrorHander'), E_ALL);
 		// 托管未处理的异常到本类处理器
 		set_exception_handler(array($this, 'unhandledExceptionHandler'));
 	}

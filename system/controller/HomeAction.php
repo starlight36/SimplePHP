@@ -18,7 +18,7 @@ class HomeAction extends Action {
 	public function execute() {
 		$this->render('phtml', 'index.phtml');
 	}
-
+	
 }
 
 /* EOF */

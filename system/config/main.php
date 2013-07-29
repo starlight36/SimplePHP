@@ -39,6 +39,7 @@ return array(
 			),
 			'json' => array(
 				'class' => '\\lib\\view\\json\\JSONAdapter',
+				'config' => array(),
 			),
 		),
 	),

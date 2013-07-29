@@ -29,38 +29,51 @@ class Request {
 
 	/**
 	 * GET方法查询参数
+	 * @var array
 	 */
 	private $requestQuery = NULL;
 
 	/**
 	 * POST方法请求参数
+	 * @var array
 	 */
 	private $requestForm = NULL;
 
 	/**
 	 * Cookie头参数
+	 * @var array
 	 */
 	private $requestCookie = NULL;
 
 	/**
 	 * 请求中提交上传的文件
+	 * @var array
 	 */
 	private $requestFile = NULL;
 
 	/**
 	 * 请求URI, 包括路径, 查询参数
+	 * @var string
 	 */
 	private $requestURI = NULL;
 
 	/**
 	 * 请求Action的全限定名
+	 * @var string
 	 */
 	private $requestAction = NULL;
 
 	/**
 	 * 请求方法名称
+	 * @var string
 	 */
 	private $requestMethod = NULL;
+	
+	/**
+	 * 通过RequestPath请求传递给Action的参数列表
+	 * @var array
+	 */
+	private $actionParams = array();
 	
 	/**
 	 * 请求的路径, 由Action和Method生成
@@ -210,17 +223,22 @@ class Request {
 			if($one == '..' || $one == '.') continue;
 			if (is_dir(SYS_PATH.$action_path.'/'.$one)) {
 				$action_path .= '/'.$one;
-			} else if(is_file(SYS_PATH.$action_path.'/'.$one.'Action.php')) {
-				$action_path .= '/'.$one.'Action';
+				continue;
+			}
+			$actionClass = str_replace('/', '\\', $action_path.'/'.ucfirst($one).'Action');
+			if(class_exists($actionClass)) {
+				$this->requestAction = $actionClass;
 				$method_start_offset = $key;
 				break;
 			}
 		}
-		$this->requestAction = str_replace('/', '\\', $action_path);
 		if($method_start_offset == $path_statement_count - 1) {
 			$this->requestMethod = 'execute';
 		} else {
 			$this->requestMethod = $path_statement[$method_start_offset + 1].'Execute';
+			if($path_statement_count - 2 > $method_start_offset) {
+				$this->actionParams = array_slice($path_statement, $method_start_offset + 2);
+			}
 		}
 		
 	}
@@ -341,6 +359,14 @@ class Request {
 	 */
 	public function getRequestMethod() {
 		return $this->requestMethod;
+	}
+	
+	/**
+	 * 取得当前Action请求的附加参数
+	 * @return array
+	 */
+	public function getActionParams() {
+		return $this->actionParams;
 	}
 	
 	/**

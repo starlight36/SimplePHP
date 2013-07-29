@@ -42,6 +42,12 @@ class FilterChain {
 	private $methodName = NULL;
 	
 	/**
+	 * 方法参数
+	 * @var array
+	 */
+	private $methodParams = array();
+	
+	/**
 	 * 当前过滤器链执行位置
 	 * @var int 
 	 */
@@ -71,6 +77,7 @@ class FilterChain {
 		$this->log = $appContext->getLog();
 		$this->actionName = $appContext->getRequest()->getRequestAction();
 		$this->methodName = $appContext->getRequest()->getRequestMethod();
+		$this->methodParams = $appContext->getRequest()->getActionParams();
 		$this->initFilterChain();
 	}
 	
@@ -97,14 +104,18 @@ class FilterChain {
 	 */
 	private function invokeAction() {
 		try {
-			// 处理验证器
-			$methodValidator = preg_replace('/(\w*)Execute$/i', '$1Validator', $this->methodName);
-			if (method_exists($this->action, $methodValidator)) {
-				$this->log->info('Process validator: '.$methodValidator);
-				call_user_func(array($this->action, $methodValidator));
+			// 处理前置处理器
+			$postMethod =  'before'.ucfirst($this->methodName);
+			if (method_exists($this->action, $postMethod)) {
+				call_user_func_array(array($this->action, $postMethod), $this->methodParams);
 			}
 			//调用方法
-			call_user_func(array($this->action, $this->methodName));
+			call_user_func_array(array($this->action, $this->methodName), $this->methodParams);
+			// 处理后置处理器
+			$afterMethod = 'after'.ucfirst($this->methodName);
+			if (method_exists($this->action, $afterMethod)) {
+				call_user_func_array(array($this->action, $afterMethod), $this->methodParams);
+			}
 		} catch (StopActionException $e) {
 			$this->log->info('Action throw StopActionException, ignored.');
 		}
