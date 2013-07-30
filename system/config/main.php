@@ -32,6 +32,8 @@ return array(
 
 	// Session设置
 	'session' => array(
+		// 是否自动开启Session
+		'auto_start' => TRUE,
 		// 当前使用的Session处理器
 		'handler' => 'default',
 		'save_path' => SYS_PATH.'runtime/session/',

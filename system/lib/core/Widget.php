@@ -86,9 +86,7 @@ abstract class Widget {
 	/**
 	 * 部件初始化方法 
 	 */
-	public function init() {
-		
-	}
+	public function init() {}
 	
 }
 

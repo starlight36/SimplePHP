@@ -59,23 +59,46 @@ class Session {
 				, array($this->sessionHandler, 'destory'), array($this->sessionHandler, 'gc')
 			);
 		}
+		if($this->config['auto_start']) {
+			$this->start();
+		}
+	}
+	
+	/**
+	 * 启动Session
+	 * Session类会在初始化时，根据配置文件中的设置决定是否自动
+	 * 启动Session，默认使用Cookie传递SessionID。若想自定义SessionID
+	 * 的处理，请先在配置文件中禁用auto_start。然后利用过滤器机制实现自定义
+	 * SessionID处理。注意，在Session启动前，无法使用Session值
+	 * @param string $sessionId 指定的SessionID
+	 */
+	public function start($sessionId = NULL) {
+		session_id($sessionId);
 		session_start();
+	}
+	
+	/**
+	 * 返回当前会话的SessionId
+	 * @return string
+	 */
+	public function getSessionId() {
+		return session_id();
 	}
 
 	/**
 	 * 取得一个会话值
 	 * 
-	 * @param name    会话名称
-	 * @param default    默认值
+	 * @param string $name 会话名称
+	 * @param mixed $default 默认值
 	 */
 	public function get($name, $default = NULL) {
-		if($_SESSION[APP_ID] && array_key_exists($name, $_SESSION[APP_ID])) {
-			if($_SESSION[APP_ID][$name]['t'] > 0 
-					&& $_SESSION[APP_ID][$name]['t'] < time()) {
+		if($_SESSION && array_key_exists($name, $_SESSION)) {
+			if($_SESSION[$name]['t'] > 0 
+					&& $_SESSION[$name]['t'] < time()) {
 				$this->remove($name);
 				return $default;
 			} else {
-				return $_SESSION[APP_ID][$name]['v'];
+				return $_SESSION[$name]['v'];
 			}
 		} else {
 			return $default;
@@ -84,12 +107,12 @@ class Session {
 
 	/**
 	 * 设置一个会话值
-	 * @param name    会话值名称
-	 * @param value    会话值
-	 * @param expire    有效期
+	 * @param string $name 会话值名称
+	 * @param mixed $value 会话值
+	 * @param int $expire  有效期, 单位秒
 	 */
 	public function put($name, $value, $expire = 0) {
-		$_SESSION[APP_ID][$name] = array(
+		$_SESSION[$name] = array(
 			't' => ($expire > 0) ? time() + $expire : 0,
 			'v' => $value
 		);
@@ -98,17 +121,17 @@ class Session {
 	/**
 	 * 删除一个会话值
 	 * 
-	 * @param name    会话名称
+	 * @param string $name 会话名称
 	 */
 	public function remove($name) {
-		unset($_SESSION[APP_ID][$name]);
+		unset($_SESSION[$name]);
 	}
 
 	/**
 	 * 清空所有会话值
 	 */
 	public function clear() {
-		$_SESSION[APP_ID] = NULL;
+		$_SESSION = NULL;
 	}
 
 }

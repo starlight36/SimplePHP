@@ -48,8 +48,6 @@ class Url {
 			$query = implode('&', $query_pieces);
 		}
 		$route_config = Application::getInstance()->getConfig()->get('route');
-		$context_path = Application::getInstance()->getRequest()->getContextPath();
-		$url = rtrim($context_path, '/').'/';
 		if($route_config['mode'] == 'query') {
 			$url .= 'index.php?p='.$action;
 			if($method) {
@@ -67,7 +65,8 @@ class Url {
 				$url .= '?'.$query;
 			}
 		} else {
-			$url .= $action;
+			$context_path = Application::getInstance()->getRequest()->getContextPath();
+			$url = rtrim($context_path, '/').'/'.$action;
 			if($method) {
 				$url .= '/'.$method;
 			}
