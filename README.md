@@ -1,6 +1,8 @@
 SimplePHP Framework
 ===================
 
+Current state: [![Build Status](https://travis-ci.org/starlight36/SimplePHP.png?branch=master)](https://travis-ci.org/starlight36/SimplePHP)
+
 This is a simple and clear framework designed for php5.3+ with full OOP support.
 When I was preparing my graduation project, I want to find a php framework that
 I can fully use the new features of php5.3+. But almost all php frameworks keep
