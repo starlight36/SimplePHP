@@ -155,11 +155,11 @@ class Log {
 		if($this->enableDevelopMode) {
 			include 'lib/misc/debug.phtml';
 			if(array_search($errorLevel, self::$levelTags) > self::INFO) {
-				die();
+				if(!defined('IN_PHPUNIT')) die();
 			}
 		} else {
 			include 'lib/misc/error.phtml';
-			die();
+			if(!defined('IN_PHPUNIT')) die();
 		}
 		return TRUE;
 	}
@@ -178,7 +178,7 @@ class Log {
 		} else {
 			include 'lib/misc/error.phtml';
 		}
-		die();
+		if(!defined('IN_PHPUNIT')) die();
 	}
 
 	/**

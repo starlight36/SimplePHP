@@ -51,9 +51,4 @@ spl_autoload_register(function($class) {
 	}
 });
 
-/**
- * 启动应用程序运行 
- */
-lib\core\Application::getInstance()->run();
-
 /* EOF */

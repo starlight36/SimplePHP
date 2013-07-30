@@ -26,4 +26,6 @@ define('SYS_PATH', WEB_ROOT.'system/');
 
 require SYS_PATH.'init.php';
 
+lib\core\Application::getInstance()->run();
+
 /* EOF */
