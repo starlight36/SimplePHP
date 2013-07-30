@@ -3,7 +3,7 @@
 namespace lib\core;
 
 use lib\core;
-use lib\db\DBFactory;
+use lib\db\DbFactory;
 
 /**
  * 模型类基类
