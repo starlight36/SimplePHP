@@ -8,4 +8,4 @@ php:
 before_script:
   - chmod -R 777 ./system/runtime
 
-script: phpunit --configuration test/configuration.xml --coverage-text test
+script: phpunit --configuration test/phpunit.xml --coverage-text test
