@@ -153,13 +153,15 @@ class Log {
 					 ." line $errline";
 		$this->record($errorLevel, $logMessage);
 		if($this->enableDevelopMode) {
-			include 'lib/misc/debug.phtml';
+			if(!defined('IN_PHPUNIT')) include 'lib/misc/debug.phtml';
 			if(array_search($errorLevel, self::$levelTags) > self::INFO) {
 				if(!defined('IN_PHPUNIT')) die();
 			}
 		} else {
-			include 'lib/misc/error.phtml';
-			if(!defined('IN_PHPUNIT')) die();
+			if(!defined('IN_PHPUNIT')){
+				include 'lib/misc/error.phtml';
+				die();
+			}
 		}
 		return TRUE;
 	}

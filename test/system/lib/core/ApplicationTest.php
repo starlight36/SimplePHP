@@ -149,7 +149,9 @@ class ApplicationTest extends \PHPUnit_Framework_TestCase {
 	 * @covers lib\core\Application::run
 	 */
 	public function testRun() {
+		ob_start();
 		$this->object->run();
+		ob_clean();
 	}
 
 	/**
