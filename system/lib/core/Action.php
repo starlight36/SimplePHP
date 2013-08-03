@@ -141,18 +141,18 @@ abstract class Action {
 	/**
 	 * 取得表单变量, 对Request::getForm的快捷封装.
 	 * 
-	 * @param name    表单变量名称
-	 * @param default    默认值
+	 * @param string  $name       变量名称
+	 * @param mixed   $default    默认值
 	 */
-	public function getForm($name = NULL, $default = NULL) {
+	protected function getForm($name = NULL, $default = NULL) {
 		return $this->getRequest()->getForm($name, $default);
 	}
 
 	/**
 	 * 取得查询变量值, 对Request::getQuery的快捷封装
 	 * 
-	 * @param string    变量名称
-	 * @param default    默认值
+	 * @param string  $name       变量名称
+	 * @param mixed   $default    默认值
 	 */
 	protected function getQuery($name = NULL, $default = NULL) {
 		return $this->getRequest()->getQuery($name, $default);
@@ -161,7 +161,7 @@ abstract class Action {
 	/**
 	 * 渲染一个视图, 对View::render方法的快捷封装
 	 * 
-	 * @param name    视图名称
+	 * @param string $name    视图名称
 	 */
 	protected function render($name, $data = NULL) {
 		return $this->getView()->render($name, $data);
@@ -170,8 +170,8 @@ abstract class Action {
 	/**
 	 * 分配视图变量, 对View::assign方法的快捷封装
 	 * 
-	 * @param name    视图变量名称
-	 * @param value    视图变量值
+	 * @param string $name    视图变量名称
+	 * @param mixed  $value   视图变量值
 	 */
 	protected function assign($name, $value = NULL) {
 		return $this->getView()->assign($name, $value);

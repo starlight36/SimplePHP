@@ -25,3 +25,5 @@ define('WEB_ROOT', dirname(__FILE__).'/../');
 define('SYS_PATH', WEB_ROOT.'system/');
 
 require SYS_PATH.'init.php';
+
+/* EOF */

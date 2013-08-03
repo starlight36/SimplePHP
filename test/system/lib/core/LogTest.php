@@ -92,3 +92,5 @@ class LogTest extends \PHPUnit_Framework_TestCase {
 	}
 
 }
+
+/* EOF */

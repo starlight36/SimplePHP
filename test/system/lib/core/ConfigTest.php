@@ -41,5 +41,25 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 		$this->assertEquals($dbConfigFIle, $this->object->get('db'));
 		$this->assertNull($this->object->get('no_such_config'));
 	}
+	
+	/**
+	 * Test for set values durning runtime
+	 * @covers lib\core\Config::set
+	 */
+	public function testSet() {
+		$this->object->set('new_config_node', 'this is value');
+		$this->assertEquals('this is value', 
+				$this->object->get('new_config_node'));
+		
+		$this->object->set('test.test1.value', 'this is value');
+		$this->assertEquals('this is value', 
+				$this->object->get('new_config_node'));
+		
+		$this->object->set(NULL, 'this is value');
+		$this->assertEquals('this is value', 
+				$this->object->get());
+	}
 
 }
+
+/* EOF */

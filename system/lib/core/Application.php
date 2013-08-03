@@ -38,6 +38,18 @@ class Application {
 	 * @var array
 	 */
 	private $attribute = array();
+	
+	/**
+	 * 网站根目录路径
+	 * @var string
+	 */
+	private $webRoot = NULL;
+	
+	/**
+	 * 系统目录根路径
+	 * @var string
+	 */
+	private $systemRoot = NULL;
 
 	/**
 	 * 配置对象
@@ -91,6 +103,8 @@ class Application {
 	 * 私有构造方法
 	 */
 	private function __construct() {
+		$this->webRoot = WEB_ROOT;
+		$this->systemRoot = SYS_PATH;
 		$this->config = new Config();
 		$this->log = new Log($this);
 		$this->request = new Request($this);
@@ -101,10 +115,11 @@ class Application {
 
 	/**
 	 * 取得应用程序单例的方法
+	 * @param boolean $forceNew 是否强制创建新的单例
 	 * @return Application
 	 */
-	public static function getInstance() {
-		if(self::$instance instanceof self) {
+	public static function getInstance($forceNew = FALSE) {
+		if($forceNew == FALSE && self::$instance instanceof self) {
 			return self::$instance;
 		}
 		return self::$instance = new self();
@@ -112,24 +127,43 @@ class Application {
 
 	/**
 	 * 设置一个属性
-	 * 
-	 * @param val    属性值
-	 * @param key    属性键名
+	 * @param string $key    属性值
+	 * @param string $val    属性键名
 	 */
-	public function setAttribute($val, $key) {
-		$this->attribute[$val] = $key;
+	public function setAttribute($key, $val) {
+		assert(!is_null($key));
+		$this->attribute[$key] = $val;
 	}
 
 	/**
 	 * 读取一个属性
-	 * 
-	 * @param key    属性名
+	 * @param string $key 属性名
 	 */
 	public function getAttribute($key = NULL) {
 		if($key === NULL) {
 			return $this->attribute;
 		}
-		return $this->attribute[$key];
+		if(array_key_exists($key, $this->attribute)) {
+			return $this->attribute[$key];
+		} else {
+			return NULL;
+		}
+	}
+	
+	/**
+	 * 取得WebRoot路径
+	 * @return string
+	 */
+	public function getWebRoot() {
+		return $this->webRoot;
+	}
+	
+	/**
+	 * 取得系统根路径
+	 * @return string
+	 */
+	public function getSystemRoot() {
+		return $this->systemRoot;
 	}
 
 	/**
@@ -198,7 +232,7 @@ class Application {
 						, $this->request->getRequestMethod())) {
 			header('HTTP/1.1 404 Not Found');
 			include 'lib/misc/404.phtml';
-			die();
+			if (!defined('IN_PHPUNIT')) die();
 		}
 		
 		// 初始化Action对象

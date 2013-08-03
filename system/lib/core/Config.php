@@ -60,6 +60,28 @@ class Config {
 		eval('$config = '.$config_exp.';');
 		return $config;
 	}
+	
+	/**
+	 * 在运行时动态地改变配置
+	 * @param string $key   配置键名
+	 * @param mixed  $value 配置值
+	 */
+	public function set($key, $value) {
+		if($key === NULL) {
+			$this->config = $value;
+		} else {
+			$key_statement = explode('.', $key);
+			$perfix = $key_statement[0];
+			if(!array_key_exists($perfix, $this->config)) {
+				$this->config[$perfix] = $this->loadConfigFile($perfix);
+			}
+			$config_exp = '$this->config';
+			foreach ($key_statement as $one) {
+				$config_exp .= "['{$one}']";
+			}
+			eval($config_exp.' = $value;');
+		}
+	}
 
 	/**
 	 * 从文件加载一个配置
